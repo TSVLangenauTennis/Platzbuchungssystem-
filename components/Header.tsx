@@ -37,7 +37,7 @@ export function Header({ date, view, userName, isAdmin }: { date: string; view: 
           <span>Aktuelle Ansicht</span>
           <strong>{view === "week" ? weekLabel : formatDateLong(date)}</strong>
           <p>
-            60 Minuten pro Buchung · Start zur vollen oder halben Stunde · bis {MAX_ADVANCE_DAYS} Tage im Voraus · für bis zu {MAX_EXPECTED_MEMBERS} Mitglieder ausgelegt.
+            60 Minuten pro Buchung · Start zur vollen oder halben Stunde · bis {MAX_ADVANCE_DAYS} Tage im Voraus.
           </p>
         </div>
         <nav className="date-nav" aria-label="Datum und Ansicht auswählen">
