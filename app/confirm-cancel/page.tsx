@@ -32,22 +32,31 @@ export default async function ConfirmCancelPage({ searchParams }: { searchParams
   const user = userData.user;
   if (!user) redirect("/login");
 
-  const [{ data: profile }, { data: booking }] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, email, phone, member_number, is_admin, is_approved, approved_at, approved_by, created_at").eq("id", user.id).single<Profile>(),
-    supabase
-      .from("bookings")
-      .select("id, court_id, user_id, created_by, title, kind, starts_at, ends_at, notes, cancelled_at, cancelled_by, cancellation_reason, created_at")
-      .eq("id", id)
-      .single<Booking>()
-  ]);
+ const [{ data: profile }, { data: booking }, { data: approvedViaRpc }, { data: adminViaRpc }] = await Promise.all([
+  supabase
+    .from("profiles")
+    .select("id, full_name, email, phone, member_number, is_admin, is_approved, approved_at, approved_by, created_at")
+    .eq("id", user.id)
+    .single<Profile>(),
+
+  supabase
+    .from("bookings")
+    .select("id, court_id, user_id, created_by, title, kind, starts_at, ends_at, notes, cancelled_at, cancelled_by, cancellation_reason, created_at")
+    .eq("id", id)
+    .single<Booking>(),
+
+  supabase.rpc("is_approved_member"),
+  supabase.rpc("is_admin")
+]);
 
   if (!booking || booking.cancelled_at) redirect(backHref(date, view));
 
   const { data: court } = await supabase.from("courts").select("id, name, is_active").eq("id", booking.court_id).single<Court>();
-  const isAdmin = Boolean(profile?.is_admin);
+  const isAdmin = Boolean(profile?.is_admin || adminViaRpc);
+const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approvedViaRpc || adminViaRpc);
   const ownsMemberBooking = booking.kind === "member" && booking.user_id === user.id;
   const isFutureBooking = new Date(booking.starts_at).getTime() > Date.now();
-  const canCancel = isAdmin || (Boolean(profile?.is_approved) && ownsMemberBooking && isFutureBooking);
+const canCancel = isAdmin || (isApproved && ownsMemberBooking && isFutureBooking);
   const bookingDate = dateValue(booking.starts_at);
 
   return (
