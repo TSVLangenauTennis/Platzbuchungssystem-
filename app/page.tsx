@@ -8,7 +8,6 @@ import { SimpleBookingForm } from "@/components/SimpleBookingForm";
 import { MemberHelp } from "@/components/MemberHelp";
 import { Footer } from "@/components/Footer";
 import { MyBookings } from "@/components/MyBookings";
-import { QuickStart } from "@/components/QuickStart";
 import { AdminMemberBookingForm } from "@/components/AdminMemberBookingForm";
 import { signOut } from "@/app/actions";
 import { addDays, getRangeForView, parseDateParam, parseViewParam, toDateInputValue } from "@/lib/dates";
@@ -118,13 +117,15 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
       {success ? <p className="notice success">{success}</p> : null}
       {error ? <p className="notice error">{error}</p> : null}
 
-      <QuickStart />
+    <section id="einfach-buchen">
+  <SimpleBookingForm date={date} view={view} courts={courts ?? []} />
+</section>
 
-      <MemberHelp />
+<section id="meine-buchungen">
+  <MyBookings bookings={myBookings ?? []} courts={courts ?? []} view={view} />
+</section>
 
-      <SimpleBookingForm date={date} view={view} courts={courts ?? []} />
-
-      <MyBookings bookings={myBookings ?? []} courts={courts ?? []} view={view} />
+<MemberHelp />
 
       <BookingRules />
 
