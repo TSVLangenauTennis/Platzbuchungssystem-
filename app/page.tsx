@@ -128,7 +128,9 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
       <BookingRules />
 
-      <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
+      {isAdmin ? (
+  <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
+) : null}
 
      <section id="kalender" className="mobile-calendar-wrap">
   <BookingBoard
