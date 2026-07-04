@@ -56,9 +56,14 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     .eq("id", user.id)
     .single<Profile>();
 
-  const userName = profile?.full_name || user.email || "Mitglied";
-  const isAdmin = Boolean(profile?.is_admin);
-  const isApproved = Boolean(profile?.is_approved || profile?.is_admin);
+const [{ data: approvedViaRpc }, { data: adminViaRpc }] = await Promise.all([
+  supabase.rpc("is_approved_member"),
+  supabase.rpc("is_admin")
+]);
+
+const userName = profile?.full_name || user.email || "Mitglied";
+const isAdmin = Boolean(profile?.is_admin || adminViaRpc);
+const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approvedViaRpc || adminViaRpc);
 
   if (!isApproved) return <PendingApproval userName={userName} />;
 
