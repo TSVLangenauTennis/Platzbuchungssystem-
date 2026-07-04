@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CLUB_NAME } from "@/lib/config";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: `${CLUB_NAME} – Platzbuchung`,
   description: "Sicheres Tennisplatz-Buchungssystem für fünf Plätze",
