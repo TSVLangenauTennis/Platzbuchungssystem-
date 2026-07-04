@@ -51,7 +51,18 @@ function disabledLabel(dateValue: string, startTime: string, court: Court): stri
   if (new Date(`${dateValue}T${startTime}:00`).getTime() <= Date.now()) return "Vergangen";
   return "Nicht buchbar";
 }
+function ConflictCell({ booking }: { booking: Booking }) {
+  return (
+    <div className={`slot-conflict ${booking.kind}`}>
+      <strong>Belegt</strong>
+      <small>wegen {formatTime(booking.starts_at)}–{formatTime(booking.ends_at)}</small>
+    </div>
+  );
+}
 
+function isExactStart(booking: Booking, startTime: string): boolean {
+  return formatTime(booking.starts_at) === startTime;
+}
 function BookingCell({ booking, dateValue, view, currentUserId, isAdmin }: { booking: Booking; dateValue: string; view: CalendarView; currentUserId: string; isAdmin: boolean }) {
   const canCancel = isAdmin || (booking.kind === "member" && booking.user_id === currentUserId && isFuture(booking.starts_at));
 
@@ -120,13 +131,17 @@ export function BookingBoard({ date, view, courts, bookings, currentUserId, isAd
                     {courts.map((court) => {
                       const booking = bookingForSlot(bookings, court.id, dateValue, slot.value);
 
-                      if (booking) {
-                        return (
-                          <td key={`${dateValue}-${court.id}-${slot.value}`}>
-                            <BookingCell booking={booking} dateValue={dateValue} view={view} currentUserId={currentUserId} isAdmin={isAdmin} />
-                          </td>
-                        );
-                      }
+                     if (booking) {
+  return (
+    <td key={`${dateValue}-${court.id}-${slot.value}`}>
+      {isExactStart(booking, slot.value) ? (
+        <BookingCell booking={booking} dateValue={dateValue} view={view} currentUserId={currentUserId} isAdmin={isAdmin} />
+      ) : (
+        <ConflictCell booking={booking} />
+      )}
+    </td>
+  );
+}
 
                       if (!canBookSlot(dateValue, slot.value, court)) {
                         return (
