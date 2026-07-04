@@ -16,6 +16,10 @@ import { MAX_ADVANCE_DAYS, MEMBER_LIST_LIMIT } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Booking, Court, Profile } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function PendingApproval({ userName }: { userName: string }) {
