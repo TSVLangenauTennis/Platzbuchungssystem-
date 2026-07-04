@@ -1433,3 +1433,60 @@ button {
   .confirm-details div { grid-template-columns: 1fr; gap: 2px; }
   .confirm-actions, .confirm-actions form, .confirm-actions button, .confirm-actions .button { width: 100%; }
 }
+.mobile-quick-nav {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .mobile-quick-nav {
+    position: sticky;
+    top: 0.5rem;
+    z-index: 50;
+    display: grid;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1rem;
+    padding: 0.65rem;
+    border: 1px solid rgba(15, 122, 61, 0.22);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 12px 30px rgba(15, 122, 61, 0.12);
+  }
+
+  .mobile-quick-nav a {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #0f7a3d;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 1rem;
+  }
+
+  input,
+  select,
+  button {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .mobile-calendar-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.75rem;
+  }
+
+  .mobile-calendar-wrap table {
+    min-width: 850px;
+  }
+
+  .mobile-calendar-wrap::before {
+    content: "Kalender seitlich wischen →";
+    display: block;
+    margin: 0.5rem 0 0.75rem;
+    color: #5d6b62;
+    font-weight: 800;
+  }
+}
