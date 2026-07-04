@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Tennisplatzbuchung">
+  <rect width="512" height="512" rx="112" fill="#0f7a3d"/>
+  <circle cx="256" cy="256" r="154" fill="#f4f7f3"/>
+  <path d="M146 256h220M256 102v308" stroke="#0f7a3d" stroke-width="28" stroke-linecap="round"/>
+  <path d="M160 160c72 58 118 146 126 244M352 160c-72 58-118 146-126 244" fill="none" stroke="#0f7a3d" stroke-width="18" stroke-linecap="round" opacity=".9"/>
+</svg>
