@@ -109,6 +109,11 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
   return (
     <main className="page">
       <Header date={date} view={view} userName={userName} isAdmin={isAdmin} />
+      <nav className="mobile-quick-nav" aria-label="Schnellnavigation">
+  <a href="#einfach-buchen">Platz buchen</a>
+  <a href="#meine-buchungen">Meine Buchungen</a>
+  <a href="#kalender">Kalender</a>
+</nav>
 
       {success ? <p className="notice success">{success}</p> : null}
       {error ? <p className="notice error">{error}</p> : null}
@@ -125,14 +130,16 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
       <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
 
-      <BookingBoard
-        date={date}
-        view={view}
-        courts={courts ?? []}
-        bookings={bookings ?? []}
-        currentUserId={user.id}
-        isAdmin={isAdmin}
-      />
+     <section id="kalender" className="mobile-calendar-wrap">
+  <BookingBoard
+    date={date}
+    view={view}
+    courts={courts ?? []}
+    bookings={bookings ?? []}
+    currentUserId={user.id}
+    isAdmin={isAdmin}
+  />
+</section>
 
       {isAdmin ? (
         <>
