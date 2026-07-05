@@ -8,11 +8,13 @@ type Props = {
   currentUserId: string;
 };
 
-function overlaps(booking: Booking, startsAt: Date, endsAt: Date) {
+function overlaps(booking: Booking, startsAt: string, endsAt: string) {
   const bookingStart = new Date(booking.starts_at).getTime();
   const bookingEnd = new Date(booking.ends_at).getTime();
+  const slotStart = new Date(startsAt).getTime();
+  const slotEnd = new Date(endsAt).getTime();
 
-  return bookingStart < endsAt.getTime() && bookingEnd > startsAt.getTime();
+  return bookingStart < slotEnd && bookingEnd > slotStart;
 }
 
 export function MobileCalendarList({ date, courts, bookings, currentUserId }: Props) {
