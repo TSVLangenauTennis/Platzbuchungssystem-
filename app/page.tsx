@@ -130,11 +130,7 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
     <span>Antippen, um freie und belegte Zeiten anzusehen</span>
   </div>
 </summary>
-
-  <span className="calendar-summary-button">Kalender öffnen</span>
-</summary>
-
-  <div className="calendar-panel">
+<div className="calendar-panel">
     <div className="calendar-control card">
       <div className="calendar-control-actions">
         <Link className="button secondary" href={`/?date=${previousDate}&view=${view}&calendar=open#kalender`}>
