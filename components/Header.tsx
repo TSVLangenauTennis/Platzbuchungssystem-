@@ -20,23 +20,23 @@ export function Header({
         <p>Hallo {userName}. Wählen Sie Datum, Platz und Uhrzeit aus.</p>
       </div>
 
-      <div className="header-actions" aria-label="Hauptaktionen">
-        <Link className="button secondary" href="/account">
-          Meine Daten
-        </Link>
+     <div className="header-actions compact-header-actions" aria-label="Hauptaktionen">
+  <Link className="button secondary header-action-button" href="/account">
+    Meine Daten
+  </Link>
 
-        {isAdmin ? (
-          <Link className="button secondary" href="/admin">
-            Adminbereich
-          </Link>
-        ) : null}
+  {isAdmin ? (
+    <Link className="button secondary header-action-button" href="/admin">
+      Adminbereich
+    </Link>
+  ) : null}
 
-        <form action={signOut}>
-          <button className="secondary" type="submit">
-            Abmelden
-          </button>
-        </form>
-      </div>
+  <form className="logout-form" action={signOut}>
+    <button className="danger header-logout-button" type="submit">
+      Abmelden
+    </button>
+  </form>
+</div>
     </header>
   );
 }
