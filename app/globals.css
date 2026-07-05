@@ -1597,3 +1597,46 @@ button {
     min-height: 64px;
   }
 }
+.compact-header-actions {
+  gap: 8px;
+}
+
+.header-action-button,
+.header-logout-button {
+  min-height: 46px;
+  padding: 10px 15px;
+  font-size: 15px;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.header-logout-button {
+  background: #dc2626;
+  color: #ffffff;
+  border: 1px solid #b91c1c;
+}
+
+.header-logout-button:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 760px) {
+  .compact-header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .compact-header-actions .button,
+  .compact-header-actions button,
+  .logout-form {
+    width: 100%;
+  }
+
+  .header-action-button,
+  .header-logout-button {
+    min-height: 48px;
+  }
+}
