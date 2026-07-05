@@ -151,21 +151,22 @@ export function BookingBoard({ date, view, courts, bookings, currentUserId, isAd
                         );
                       }
 
-                      const endsAt = getSlotLocal(dateValue, slot.value).endsAt;
-                      return (
-                        <td key={`${dateValue}-${court.id}-${slot.value}`} className="slot-free">
-                          <form action="/confirm-booking" method="get" className="slot-form">
-                            <input type="hidden" name="date" value={dateValue} />
-                            <input type="hidden" name="startTime" value={slot.value} />
-                            <input type="hidden" name="courtId" value={court.id} />
-                            <input type="hidden" name="view" value={view} />
-                            <input className="slot-note-input" name="notes" placeholder="Partner" maxLength={120} aria-label="Spielpartner oder Hinweis optional" />
-                            <button className="slot-button" type="submit">
-                              <span>Frei – prüfen</span>
-                              <small>{slot.label}–{formatTime(endsAt)}</small>
-                            </button>
-                          </form>
-                        </td>
+     const endsAt = getSlotLocal(dateValue, slot.value).endsAt;
+return (
+  <td key={`${dateValue}-${court.id}-${slot.value}`} className="slot-free">
+    <form action="/confirm-booking" method="get" className="slot-form">
+      <input type="hidden" name="date" value={dateValue} />
+      <input type="hidden" name="startTime" value={slot.value} />
+      <input type="hidden" name="courtId" value={court.id} />
+      <input type="hidden" name="view" value={view} />
+
+      <button className="slot-button" type="submit">
+        <span>Frei</span>
+        <small>{slot.label}–{formatTime(endsAt)}</small>
+      </button>
+    </form>
+  </td>
+);               
                       );
                     })}
                   </tr>
