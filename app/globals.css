@@ -1716,3 +1716,68 @@ button {
     padding: 0 14px 14px;
   }
 }
+<section id="kalender" className="calendar-overview-section">
+  <div className="calendar-control card">
+    <div>
+      <p className="eyebrow">Kalenderübersicht</p>
+      <h2>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</h2>
+      <p>Schnell prüfen, wann ein Platz frei oder belegt ist.</p>
+    </div>
+
+    <div className="calendar-control-actions">
+      <Link className="button secondary" href={`/?date=${previousDate}&view=${view}#kalender`}>
+        {view === "week" ? "Vorwoche" : "Vorheriger Tag"}
+      </Link>
+
+      <Link className="button secondary" href={`/?date=${today}&view=${view}#kalender`}>
+        Heute
+      </Link>
+
+      <Link className="button secondary" href={`/?date=${nextDate}&view=${view}#kalender`}>
+        {view === "week" ? "Nächste Woche" : "Nächster Tag"}
+      </Link>
+
+      <Link className={view === "day" ? "button" : "button secondary"} href={`/?date=${date}&view=day#kalender`}>
+        Tag
+      </Link>
+
+      <Link className={view === "week" ? "button" : "button secondary"} href={`/?date=${startOfWeekMonday(date)}&view=week#kalender`}>
+        Woche
+      </Link>
+    </div>
+
+    <form className="calendar-date-form">
+      <label>
+        <span>Datum direkt wählen</span>
+        <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
+      </label>
+      <input type="hidden" name="view" value={view} />
+      <button type="submit">Anzeigen</button>
+    </form>
+  </div>
+
+  <div className="mobile-calendar-wrap">
+    <BookingBoard
+      date={date}
+      view={view}
+      courts={courts ?? []}
+      bookings={bookings ?? []}
+      currentUserId={user.id}
+      isAdmin={isAdmin}
+    />
+  </div>
+</section>
+
+<SimpleBookingForm date={date} view={view} courts={courts ?? []} />
+
+<section id="meine-buchungen">
+  <MyBookings bookings={myBookings ?? []} courts={courts ?? []} view={view} />
+</section>
+
+<MemberHelp />
+
+<BookingRules />
+
+{isAdmin ? (
+  <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
+) : null}
