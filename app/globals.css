@@ -1716,68 +1716,138 @@ button {
     padding: 0 14px 14px;
   }
 }
-<section id="kalender" className="calendar-overview-section">
-  <div className="calendar-control card">
-    <div>
-      <p className="eyebrow">Kalenderübersicht</p>
-      <h2>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</h2>
-      <p>Schnell prüfen, wann ein Platz frei oder belegt ist.</p>
-    </div>
+.calendar-overview-section {
+  margin-bottom: 18px;
+}
 
-    <div className="calendar-control-actions">
-      <Link className="button secondary" href={`/?date=${previousDate}&view=${view}#kalender`}>
-        {view === "week" ? "Vorwoche" : "Vorheriger Tag"}
-      </Link>
+.calendar-control {
+  padding: 18px;
+  margin-bottom: 14px;
+  display: grid;
+  gap: 14px;
+  border: 2px solid #b7ebc6;
+}
 
-      <Link className="button secondary" href={`/?date=${today}&view=${view}#kalender`}>
-        Heute
-      </Link>
+.calendar-control h2 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 38px);
+  letter-spacing: -0.04em;
+}
 
-      <Link className="button secondary" href={`/?date=${nextDate}&view=${view}#kalender`}>
-        {view === "week" ? "Nächste Woche" : "Nächster Tag"}
-      </Link>
+.calendar-control p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
 
-      <Link className={view === "day" ? "button" : "button secondary"} href={`/?date=${date}&view=day#kalender`}>
-        Tag
-      </Link>
+.calendar-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-      <Link className={view === "week" ? "button" : "button secondary"} href={`/?date=${startOfWeekMonday(date)}&view=week#kalender`}>
-        Woche
-      </Link>
-    </div>
+.calendar-date-form {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+}
 
-    <form className="calendar-date-form">
-      <label>
-        <span>Datum direkt wählen</span>
-        <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
-      </label>
-      <input type="hidden" name="view" value={view} />
-      <button type="submit">Anzeigen</button>
-    </form>
-  </div>
+.calendar-date-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 850;
+  color: var(--muted);
+}
 
-  <div className="mobile-calendar-wrap">
-    <BookingBoard
-      date={date}
-      view={view}
-      courts={courts ?? []}
-      bookings={bookings ?? []}
-      currentUserId={user.id}
-      isAdmin={isAdmin}
-    />
-  </div>
-</section>
+.calendar-date-form input {
+  min-width: 180px;
+}
 
-<SimpleBookingForm date={date} view={view} courts={courts ?? []} />
+.slot-button {
+  background: #dcfce7;
+  color: #14532d;
+  border: 2px solid #22c55e;
+}
 
-<section id="meine-buchungen">
-  <MyBookings bookings={myBookings ?? []} courts={courts ?? []} view={view} />
-</section>
+.slot-button:hover {
+  background: #bbf7d0;
+}
 
-<MemberHelp />
+.booking {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #7f1d1d;
+}
 
-<BookingRules />
+.booking small {
+  color: #991b1b;
+}
 
-{isAdmin ? (
-  <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
-) : null}
+.booking.training {
+  background: #ffedd5;
+  border-color: #f97316;
+  color: #7c2d12;
+}
+
+.booking.match,
+.booking.tournament {
+  background: #ede9fe;
+  border-color: #8b5cf6;
+  color: #4c1d95;
+}
+
+.booking.maintenance,
+.booking.blocked {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.slot-conflict {
+  height: 100%;
+  border-radius: 14px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #7f1d1d;
+}
+
+.slot-conflict strong,
+.slot-conflict small {
+  display: block;
+}
+
+.slot-conflict small {
+  font-weight: 800;
+  color: #991b1b;
+}
+
+@media (max-width: 760px) {
+  .calendar-control {
+    padding: 14px;
+  }
+
+  .calendar-control-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .calendar-control-actions .button,
+  .calendar-date-form,
+  .calendar-date-form label,
+  .calendar-date-form button {
+    width: 100%;
+  }
+
+  .calendar-date-form {
+    display: grid;
+  }
+
+  .calendar-date-form input {
+    min-width: 0;
+    width: 100%;
+  }
+
