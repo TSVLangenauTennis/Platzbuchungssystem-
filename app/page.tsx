@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { AdminBlockForm } from "@/components/AdminBlockForm";
 import { AvailabilitySummary } from "@/components/AvailabilitySummary";
 import { BookingBoard } from "@/components/BookingBoard";
@@ -10,7 +11,7 @@ import { Footer } from "@/components/Footer";
 import { MyBookings } from "@/components/MyBookings";
 import { AdminMemberBookingForm } from "@/components/AdminMemberBookingForm";
 import { signOut } from "@/app/actions";
-import { addDays, getRangeForView, parseDateParam, parseViewParam, toDateInputValue } from "@/lib/dates";
+import { addDays, formatDateLong, getRangeForView, parseDateParam, parseViewParam, startOfWeekMonday, toDateInputValue } from "@/lib/dates";
 import { MAX_ADVANCE_DAYS, MEMBER_LIST_LIMIT } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Booking, Court, Profile } from "@/lib/types";
@@ -104,7 +105,10 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
-
+const currentDate = new Date(`${date}T00:00:00`);
+const previousDate = toDateInputValue(addDays(currentDate, view === "week" ? -7 : -1));
+const nextDate = toDateInputValue(addDays(currentDate, view === "week" ? 7 : 1));
+const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVANCE_DAYS));
   return (
     <main className="page">
       <Header date={date} view={view} userName={userName} isAdmin={isAdmin} />
@@ -117,9 +121,59 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
       {success ? <p className="notice success">{success}</p> : null}
       {error ? <p className="notice error">{error}</p> : null}
 
-    <section id="einfach-buchen">
-  <SimpleBookingForm date={date} view={view} courts={courts ?? []} />
+    <section id="kalender" className="calendar-overview-section">
+  <div className="calendar-control card">
+    <div>
+      <p className="eyebrow">Kalenderübersicht</p>
+      <h2>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</h2>
+      <p>Schnell prüfen, wann ein Platz frei oder belegt ist.</p>
+    </div>
+
+    <div className="calendar-control-actions">
+      <Link className="button secondary" href={`/?date=${previousDate}&view=${view}#kalender`}>
+        {view === "week" ? "Vorwoche" : "Vorheriger Tag"}
+      </Link>
+
+      <Link className="button secondary" href={`/?date=${today}&view=${view}#kalender`}>
+        Heute
+      </Link>
+
+      <Link className="button secondary" href={`/?date=${nextDate}&view=${view}#kalender`}>
+        {view === "week" ? "Nächste Woche" : "Nächster Tag"}
+      </Link>
+
+      <Link className={view === "day" ? "button" : "button secondary"} href={`/?date=${date}&view=day#kalender`}>
+        Tag
+      </Link>
+
+      <Link className={view === "week" ? "button" : "button secondary"} href={`/?date=${startOfWeekMonday(date)}&view=week#kalender`}>
+        Woche
+      </Link>
+    </div>
+
+    <form className="calendar-date-form">
+      <label>
+        <span>Datum direkt wählen</span>
+        <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
+      </label>
+      <input type="hidden" name="view" value={view} />
+      <button type="submit">Anzeigen</button>
+    </form>
+  </div>
+
+  <div className="mobile-calendar-wrap">
+    <BookingBoard
+      date={date}
+      view={view}
+      courts={courts ?? []}
+      bookings={bookings ?? []}
+      currentUserId={user.id}
+      isAdmin={isAdmin}
+    />
+  </div>
 </section>
+
+<SimpleBookingForm date={date} view={view} courts={courts ?? []} />
 
 <section id="meine-buchungen">
   <MyBookings bookings={myBookings ?? []} courts={courts ?? []} view={view} />
@@ -127,22 +181,11 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
 <MemberHelp />
 
-      <BookingRules />
+<BookingRules />
 
-      {isAdmin ? (
+{isAdmin ? (
   <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />
 ) : null}
-
-     <section id="kalender" className="mobile-calendar-wrap">
-  <BookingBoard
-    date={date}
-    view={view}
-    courts={courts ?? []}
-    bookings={bookings ?? []}
-    currentUserId={user.id}
-    isAdmin={isAdmin}
-  />
-</section>
 
       {isAdmin ? (
         <>
