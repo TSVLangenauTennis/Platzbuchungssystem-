@@ -79,7 +79,7 @@ export function SimpleBookingForm({ date, view, courts }: Props) {
         </label>
 
         <button className="large-primary" type="submit" disabled={activeCourts.length === 0}>
-          Weiter zur Prüfung
+          Buchung prüfen
         </button>
 
         <p className="form-hint">
