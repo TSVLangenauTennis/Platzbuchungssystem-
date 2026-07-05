@@ -1,95 +1,127 @@
-import { redirect } from "next/navigation";
 import { requestPasswordReset, signIn, signUp } from "@/app/actions";
 import { CLUB_CONTACT_EMAIL, CLUB_NAME, MIN_PASSWORD_LENGTH } from "@/lib/config";
-import { createClient } from "@/lib/supabase/server";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
 export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (data.user) redirect("/");
-
-  const success = typeof params.success === "string" ? params.success : undefined;
-  const error = typeof params.error === "string" ? params.error : undefined;
+  const success = first(params.success);
+  const error = first(params.error);
 
   return (
-    <main className="auth-shell">
-      <section className="auth-card card">
-        <div className="auth-panel login-intro">
+    <main className="auth-shell login-mobile-shell">
+      <section className="card login-mobile-card">
+        <div className="login-mobile-head">
           <p className="eyebrow">Platzbuchung</p>
           <h1>{CLUB_NAME}</h1>
-          <p>
-            Melden Sie sich mit Ihrer E-Mail-Adresse an. Nach der Registrierung muss ein Admin Ihr Konto einmal freigeben.
-          </p>
-          <div className="login-help-box">
-            <strong>Hilfe für Mitglieder</strong>
-            <span>Sie brauchen nur E-Mail und Passwort. Bei Problemen wenden Sie sich an {CLUB_CONTACT_EMAIL}.</span>
-          </div>
-          {success ? <p className="notice success" role="status">{success}</p> : null}
-          {error ? <p className="notice error" role="alert">{error}</p> : null}
+          <p>Einloggen und Tennisplatz buchen.</p>
         </div>
 
-        <div className="auth-panel">
+        {success ? <p className="notice success">{success}</p> : null}
+        {error ? <p className="notice error">{error}</p> : null}
+
+        <section className="login-main-box">
           <h2>Einloggen</h2>
+
           <form action={signIn} className="form-stack">
             <label>
-              E-Mail-Adresse
+              <span>E-Mail-Adresse</span>
               <input name="email" type="email" autoComplete="email" required />
             </label>
+
             <label>
-              Passwort
-              <input name="password" type="password" autoComplete="current-password" required minLength={MIN_PASSWORD_LENGTH} />
+              <span>Passwort</span>
+              <input name="password" type="password" autoComplete="current-password" required />
             </label>
-            <button className="large-primary" type="submit">Einloggen</button>
+
+            <button className="large-primary" type="submit">
+              Einloggen
+            </button>
           </form>
+        </section>
 
-          <details className="password-help">
-            <summary>Passwort vergessen?</summary>
-            <p>Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten dann einen Link zum Zurücksetzen des Passworts.</p>
-            <form action={requestPasswordReset} className="form-stack compact-form">
-              <label>
-                E-Mail-Adresse
-                <input name="email" type="email" autoComplete="email" required />
-              </label>
-              <button className="secondary" type="submit">Link anfordern</button>
-            </form>
-          </details>
+        <details className="login-collapse card">
+          <summary>
+            <div>
+              <strong>Noch kein Konto?</strong>
+              <span>Hier registrieren</span>
+            </div>
+            <span className="login-collapse-button">Öffnen</span>
+          </summary>
 
-          <hr style={{ margin: "28px 0", border: 0, borderTop: "1px solid var(--line)" }} />
-
-          <h2>Neu registrieren</h2>
-          <p className="form-hint">Nur für Vereinsmitglieder. Nach dem Absenden prüft ein Admin die Registrierung und schaltet das Konto frei.</p>
-          <form action={signUp} className="form-stack">
+          <form action={signUp} className="form-stack login-collapse-content">
             <label>
-              Vorname und Nachname
-              <input name="fullName" type="text" autoComplete="name" placeholder="Vorname Nachname" required />
+              <span>Vollständiger Name</span>
+              <input name="fullName" autoComplete="name" required />
             </label>
+
             <label>
-              E-Mail-Adresse
+              <span>E-Mail-Adresse</span>
               <input name="email" type="email" autoComplete="email" required />
             </label>
+
             <label>
-              Telefonnummer optional
-              <input name="phone" type="tel" autoComplete="tel" maxLength={40} />
+              <span>Telefonnummer <small>optional</small></span>
+              <input name="phone" autoComplete="tel" />
             </label>
+
             <label>
-              Mitgliedsnummer optional
-              <input name="memberNumber" type="text" maxLength={40} />
+              <span>Mitgliedsnummer <small>optional</small></span>
+              <input name="memberNumber" />
             </label>
+
             <label>
-              Neues Passwort
-              <input name="password" type="password" autoComplete="new-password" required minLength={MIN_PASSWORD_LENGTH} />
+              <span>Passwort</span>
+              <input
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                minLength={MIN_PASSWORD_LENGTH}
+                required
+              />
               <small>Mindestens {MIN_PASSWORD_LENGTH} Zeichen.</small>
             </label>
-            <label className="hp-field" aria-hidden="true">
-              Website
-              <input name="website" tabIndex={-1} autoComplete="off" />
-            </label>
-            <button type="submit">Registrierung abschicken</button>
+
+            <input className="hp-field" name="website" tabIndex={-1} autoComplete="off" />
+
+            <button type="submit">
+              Konto erstellen
+            </button>
+
+            <p className="form-hint">
+              Nach der Registrierung muss ein Admin das Konto freigeben.
+            </p>
           </form>
-        </div>
+        </details>
+
+        <details className="login-collapse card">
+          <summary>
+            <div>
+              <strong>Passwort vergessen?</strong>
+              <span>Link zum Zurücksetzen anfordern</span>
+            </div>
+            <span className="login-collapse-button">Öffnen</span>
+          </summary>
+
+          <form action={requestPasswordReset} className="form-stack login-collapse-content">
+            <label>
+              <span>E-Mail-Adresse</span>
+              <input name="email" type="email" autoComplete="email" required />
+            </label>
+
+            <button className="secondary" type="submit">
+              Passwort-Link senden
+            </button>
+
+            <p className="form-hint">
+              Bei Problemen bitte an {CLUB_CONTACT_EMAIL} wenden.
+            </p>
+          </form>
+        </details>
       </section>
     </main>
   );
