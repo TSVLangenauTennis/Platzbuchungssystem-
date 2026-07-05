@@ -123,15 +123,15 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
       {error ? <p className="notice error">{error}</p> : null}
 
     <details id="kalender" className="calendar-overview-section calendar-accordion" open={calendarOpen}>
-  <summary className="calendar-summary">
-    <div>
-      <p className="eyebrow">Kalenderübersicht</p>
-      <strong>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</strong>
-      <span>Tippen zum Öffnen und freie Zeiten prüfen</span>
-    </div>
+<summary className="calendar-summary">
+  <div className="calendar-summary-text">
+    <p className="eyebrow">Kalenderübersicht</p>
+    <strong>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</strong>
+    <span>Freie und belegte Zeiten ansehen</span>
+  </div>
 
-    <span className="calendar-summary-button">Öffnen</span>
-  </summary>
+  <span className="calendar-summary-button">Kalender öffnen</span>
+</summary>
 
   <div className="calendar-panel">
     <div className="calendar-control card">
@@ -149,11 +149,11 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
         </Link>
 
         <Link className={view === "day" ? "button" : "button secondary"} href={`/?date=${date}&view=day&calendar=open#kalender`}>
-          Tag
+          Tagesansicht
         </Link>
 
         <Link className={view === "week" ? "button" : "button secondary"} href={`/?date=${startOfWeekMonday(date)}&view=week&calendar=open#kalender`}>
-          Woche
+          Wochenansicht
         </Link>
       </div>
 
