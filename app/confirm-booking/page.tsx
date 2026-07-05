@@ -70,9 +70,9 @@ export default async function ConfirmBookingPage({ searchParams }: { searchParam
   return (
     <main className="auth-shell">
       <section className="card confirm-card">
-        <p className="eyebrow">Buchung prüfen</p>
+        <p className="eyebrow">Buchung kontrollieren</p>
         <h1>Stimmt alles?</h1>
-        <p className="confirm-intro">Bitte prüfen Sie die Angaben. Erst der grüne Button erstellt die Buchung.</p>
+        <p className="confirm-intro">Bitte kontrollieren Sie Datum, Platz und Uhrzeit. Erst mit dem grünen Button wird der Platz gebucht.</p>
 
         <dl className="confirm-details">
           <div><dt>Datum</dt><dd>{formatDateLong(date)}</dd></div>
@@ -95,7 +95,7 @@ export default async function ConfirmBookingPage({ searchParams }: { searchParam
             <input type="hidden" name="courtId" value={courtId} />
             <input type="hidden" name="notes" value={notes} />
             <input type="hidden" name="view" value={view} />
-            <button className="large-primary" type="submit" disabled={!isBookable}>Verbindlich buchen</button>
+            <button className="large-primary" type="submit" disabled={!isBookable}>Jetzt Platz buchen</button>
           </form>
         </div>
       </section>
