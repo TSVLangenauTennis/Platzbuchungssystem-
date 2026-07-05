@@ -116,7 +116,7 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
       <nav className="mobile-quick-nav" aria-label="Schnellnavigation">
   <a href="#einfach-buchen">Platz buchen</a>
   <a href="#meine-buchungen">Meine Buchungen</a>
-  <a href="#kalender">Kalender</a>
+  <a href="/kalender">Kalender</a>
 </nav>
 
       {success ? <p className="notice success">{success}</p> : null}
