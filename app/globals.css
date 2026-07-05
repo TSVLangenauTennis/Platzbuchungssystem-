@@ -2210,3 +2210,79 @@ button {
     min-height: 52px;
   }
 }
+/* Korrektur: Kalenderkarte ohne extra Öffnen-Button */
+
+.calendar-summary-button {
+  display: none !important;
+}
+
+.calendar-summary-text {
+  width: 100%;
+}
+
+.calendar-summary-text span {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* Korrektur: Schnell-buchen-Formular darf auf Handy nicht überstehen */
+
+.compact-booking,
+.compact-booking *,
+.compact-booking *::before,
+.compact-booking *::after {
+  box-sizing: border-box;
+}
+
+.compact-booking {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.compact-booking-form {
+  width: 100%;
+  max-width: 100%;
+}
+
+.compact-booking-form label {
+  min-width: 0;
+}
+
+.compact-booking-form input,
+.compact-booking-form select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .compact-booking-form {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-booking-form input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .compact-booking {
+    overflow-x: hidden;
+  }
+
+  .calendar-summary {
+    padding: 18px;
+  }
+
+  .calendar-summary-text strong {
+    font-size: 28px;
+  }
+
+  .calendar-summary-text span {
+    font-size: 16px;
+    font-weight: 800;
+  }
+}
