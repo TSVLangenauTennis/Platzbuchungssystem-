@@ -127,8 +127,9 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
   <div className="calendar-summary-text">
     <p className="eyebrow">Kalenderübersicht</p>
     <strong>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</strong>
-    <span>Freie und belegte Zeiten ansehen</span>
+    <span>Antippen, um freie und belegte Zeiten anzusehen</span>
   </div>
+</summary>
 
   <span className="calendar-summary-button">Kalender öffnen</span>
 </summary>
