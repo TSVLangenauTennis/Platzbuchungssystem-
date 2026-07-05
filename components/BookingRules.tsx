@@ -1,17 +1,24 @@
-import { CLUB_CONTACT_EMAIL, MAX_ADVANCE_DAYS, SLOT_MINUTES, SLOT_STEP_MINUTES } from "@/lib/config";
+import { MAX_ADVANCE_DAYS } from "@/lib/config";
 
 export function BookingRules() {
   return (
-    <section className="card rules-card" aria-label="Buchungsregeln">
-      <strong>Buchungsregeln</strong>
-      <ul>
-        <li>{SLOT_MINUTES} Minuten pro Buchung.</li>
-        <li>Start alle {SLOT_STEP_MINUTES} Minuten, also auch z. B. 17:30–18:30.</li>
-        <li>Buchbar bis {MAX_ADVANCE_DAYS} Tage im Voraus.</li>
-        <li>Eigene kommende Buchungen können selbst storniert werden.</li>
-        <li>Training, Verbandsspiele, Turniere und Wartung blockiert der Admin.</li>
-      </ul>
-      <span>Bei Problemen: {CLUB_CONTACT_EMAIL}</span>
-    </section>
+    <details className="card collapsible-card">
+      <summary>
+        <div>
+          <strong>Buchungsregeln</strong>
+          <span>Wichtige Regeln zur Platzbuchung</span>
+        </div>
+        <span className="collapse-arrow">⌄</span>
+      </summary>
+
+      <div className="collapsible-content rules-list">
+        <ul>
+          <li>Eine Buchung dauert immer genau 60 Minuten.</li>
+          <li>Startzeiten sind zur vollen oder halben Stunde möglich.</li>
+          <li>Buchungen sind maximal {MAX_ADVANCE_DAYS} Tage im Voraus möglich.</li>
+          <li>Eigene kommende Buchungen können vor Beginn storniert werden.</li>
+        </ul>
+      </div>
+    </details>
   );
 }
