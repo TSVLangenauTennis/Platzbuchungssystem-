@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { AdminBlockForm } from "@/components/AdminBlockForm";
 import { AvailabilitySummary } from "@/components/AvailabilitySummary";
-import { BookingBoard } from "@/components/BookingBoard";
 import { BookingRules } from "@/components/BookingRules";
 import { Header } from "@/components/Header";
 import { SimpleBookingForm } from "@/components/SimpleBookingForm";
@@ -11,7 +9,7 @@ import { Footer } from "@/components/Footer";
 import { MyBookings } from "@/components/MyBookings";
 import { AdminMemberBookingForm } from "@/components/AdminMemberBookingForm";
 import { signOut } from "@/app/actions";
-import { addDays, formatDateLong, getRangeForView, parseDateParam, parseViewParam, startOfWeekMonday, toDateInputValue } from "@/lib/dates";
+import { addDays, getRangeForView, parseDateParam, parseViewParam, toDateInputValue } from "@/lib/dates";
 import { MAX_ADVANCE_DAYS, MEMBER_LIST_LIMIT } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
 import type { Booking, Court, Profile } from "@/lib/types";
@@ -105,11 +103,6 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
   const success = typeof params.success === "string" ? params.success : undefined;
   const error = typeof params.error === "string" ? params.error : undefined;
-const currentDate = new Date(`${date}T00:00:00`);
-const previousDate = toDateInputValue(addDays(currentDate, view === "week" ? -7 : -1));
-const nextDate = toDateInputValue(addDays(currentDate, view === "week" ? 7 : 1));
-const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVANCE_DAYS));
-  const calendarOpen = params.calendar === "open";
   return (
     <main className="page">
       <Header date={date} view={view} userName={userName} isAdmin={isAdmin} />
@@ -121,62 +114,6 @@ const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVA
 
       {success ? <p className="notice success">{success}</p> : null}
       {error ? <p className="notice error">{error}</p> : null}
-
-    <details id="kalender" className="calendar-overview-section calendar-accordion" open={calendarOpen}>
-<summary className="calendar-summary">
-  <div className="calendar-summary-text">
-    <p className="eyebrow">Kalenderübersicht</p>
-    <strong>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</strong>
-    <span>Antippen, um freie und belegte Zeiten anzusehen</span>
-  </div>
-</summary>
-<div className="calendar-panel">
-    <div className="calendar-control card">
-      <div className="calendar-control-actions">
-        <Link className="button secondary" href={`/?date=${previousDate}&view=${view}&calendar=open#kalender`}>
-          {view === "week" ? "Vorwoche" : "Vorheriger Tag"}
-        </Link>
-
-        <Link className="button secondary" href={`/?date=${today}&view=${view}&calendar=open#kalender`}>
-          Heute
-        </Link>
-
-        <Link className="button secondary" href={`/?date=${nextDate}&view=${view}&calendar=open#kalender`}>
-          {view === "week" ? "Nächste Woche" : "Nächster Tag"}
-        </Link>
-
-        <Link className={view === "day" ? "button" : "button secondary"} href={`/?date=${date}&view=day&calendar=open#kalender`}>
-          Tagesansicht
-        </Link>
-
-        <Link className={view === "week" ? "button" : "button secondary"} href={`/?date=${startOfWeekMonday(date)}&view=week&calendar=open#kalender`}>
-          Wochenansicht
-        </Link>
-      </div>
-
-      <form className="calendar-date-form">
-        <label>
-          <span>Datum direkt wählen</span>
-          <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
-        </label>
-        <input type="hidden" name="view" value={view} />
-        <input type="hidden" name="calendar" value="open" />
-        <button type="submit">Anzeigen</button>
-      </form>
-    </div>
-
-    <div className="mobile-calendar-wrap">
-      <BookingBoard
-        date={date}
-        view={view}
-        courts={courts ?? []}
-        bookings={bookings ?? []}
-        currentUserId={user.id}
-        isAdmin={isAdmin}
-      />
-    </div>
-  </div>
-</details>
 
 <SimpleBookingForm date={date} view={view} courts={courts ?? []} />
 
