@@ -216,41 +216,31 @@ const cancelSchema = z.object({
 });
 
 export async function cancelBooking(formData: FormData) {
-  const parsed = cancelSchema.safeParse({ id: formData.get("id"), date: formData.get("date"), view: formData.get("view") || "day" });
-  if (!parsed.success) redirectToCalendar(toDateInputValue(), "day", "error", "Buchung konnte nicht gelesen werden.");
+  const parsed = cancelSchema.safeParse({
+    id: formData.get("id"),
+    date: formData.get("date"),
+    view: formData.get("view") || "day"
+  });
 
-  const { supabase, user } = await getCurrentUserOrRedirect();
-  const { data: profile } = await supabase.from("profiles").select("is_admin, is_approved").eq("id", user.id).single();
-
-  const { data: booking } = await supabase
-    .from("bookings")
-    .select("id, user_id, kind, starts_at, cancelled_at")
-    .eq("id", parsed.data.id)
-    .single<Pick<Booking, "id" | "user_id" | "kind" | "starts_at" | "cancelled_at">>();
-
-  if (!booking || booking.cancelled_at) redirectToCalendar(parsed.data.date, parsed.data.view ?? "day", "error", "Buchung wurde nicht gefunden.");
-
-  const isAdmin = Boolean(profile?.is_admin);
-  const ownsMemberBooking = booking.kind === "member" && booking.user_id === user.id;
-  const isFutureBooking = new Date(booking.starts_at).getTime() > Date.now();
-
-  if (!isAdmin && (!profile?.is_approved || !ownsMemberBooking || !isFutureBooking)) {
-    redirectToCalendar(parsed.data.date, parsed.data.view ?? "day", "error", "Diese Buchung können Sie nicht löschen.");
+  if (!parsed.success) {
+    redirectToCalendar(toDateInputValue(), "day", "error", "Buchung konnte nicht gelesen werden.");
   }
 
-  const { error } = await supabase
-    .from("bookings")
-    .update({
-      cancelled_at: new Date().toISOString(),
-      cancelled_by: user.id,
-      cancellation_reason: isAdmin ? "Gelöscht durch Admin" : "Storniert durch Mitglied"
-    })
-    .eq("id", parsed.data.id);
+  const view = parsed.data.view ?? "day";
+  const { supabase } = await getCurrentUserOrRedirect();
 
-  if (error) redirectToCalendar(parsed.data.date, parsed.data.view ?? "day", "error", "Buchung konnte nicht gelöscht werden.");
+  const { error } = await supabase.rpc("cancel_own_booking", {
+    p_booking_id: parsed.data.id
+  });
+
+  if (error) {
+    redirectToCalendar(parsed.data.date, view, "error", "Buchung konnte nicht gelöscht werden.");
+  }
 
   revalidatePath("/");
-  redirectToCalendar(parsed.data.date, parsed.data.view ?? "day", "success", "Buchung gelöscht.");
+  revalidatePath("/admin/bookings");
+
+  redirectToCalendar(parsed.data.date, view, "success", "Buchung gelöscht.");
 }
 
 export async function cancelBookingAsAdmin(formData: FormData) {
