@@ -124,7 +124,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Sea
         <div>
           <p className="eyebrow">Kalender</p>
           <h1>{formatDateLong(date)}</h1>
-          <p>Wochenansicht. Tippen Sie auf einen Tag, einen Platz und dann auf eine freie Uhrzeit.</p>
+          <p>Wählen Sie einen Tag,anschließend einen Platz und dann eine freie Uhrzeit.</p>
         </div>
       </section>
 
