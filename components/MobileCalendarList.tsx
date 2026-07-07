@@ -10,17 +10,23 @@ type Props = {
   selectedCourtId?: number;
 };
 
-function overlaps(booking: Booking, startsAt: string, endsAt: string) {
+function overlapsRange(
+  booking: Booking,
+  startsAt: string,
+  endsAt: string
+) {
   const bookingStart = new Date(booking.starts_at).getTime();
   const bookingEnd = new Date(booking.ends_at).getTime();
-  const slotStart = new Date(startsAt).getTime();
-  const slotEnd = new Date(endsAt).getTime();
+  const rangeStart = new Date(startsAt).getTime();
+  const rangeEnd = new Date(endsAt).getTime();
 
-  return bookingStart < slotEnd && bookingEnd > slotStart;
+  return bookingStart < rangeEnd && bookingEnd > rangeStart;
 }
 
-function startsExactlyAt(booking: Booking, startsAt: string) {
-  return new Date(booking.starts_at).getTime() === new Date(startsAt).getTime();
+function addMinutesToIso(iso: string, minutes: number) {
+  const date = new Date(iso);
+  date.setMinutes(date.getMinutes() + minutes);
+  return date.toISOString();
 }
 
 function halfHourDisplayLabel(startTime: string) {
@@ -46,8 +52,8 @@ function formatMobileDate(date: string) {
 }
 
 function bookingLabel(booking: Booking, isOwnBooking: boolean) {
-  if (booking.kind === "member") {
-    return isOwnBooking ? "Ihre Buchung" : "Belegt";
+  if (isOwnBooking) {
+    return "Ihre Buchung";
   }
 
   if (booking.kind === "training") {
@@ -58,7 +64,7 @@ function bookingLabel(booking: Booking, isOwnBooking: boolean) {
     return "Spiel/Turnier";
   }
 
-  return "Gesperrt";
+  return "Belegt";
 }
 
 function courtHref(date: string, courtId: number) {
@@ -96,7 +102,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
       <div className="mobile-day-calendar-head">
         <p className="eyebrow">Buchbare Zeiten</p>
         <h2>{formatMobileDate(date)}</h2>
-        <p>Wählen Sie zuerst den Platz und danach eine freie Startzeit.</p>
+        <p>Grüne Zeiten sind frei. Eine Buchung dauert immer 60 Minuten.</p>
       </div>
 
       <div className="mobile-place-tabs" aria-label="Platz auswählen">
@@ -114,7 +120,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
 
       <div className="mobile-selected-court">
         <strong>{selectedCourt.name}</strong>
-        <span>Grüne Zeiten sind frei. Eine Buchung dauert immer 60 Minuten.</span>
+        <span>Die Liste zeigt freie und belegte 30-Minuten-Zeiten.</span>
       </div>
 
       {visibleSlots.length === 0 ? (
@@ -122,28 +128,18 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
       ) : (
         <div className="mobile-time-list">
           {visibleSlots.map((slot) => {
-            const { startsAt, endsAt } = getSlotLocal(date, slot.value);
-            const booking = bookings.find(
+            const { startsAt } = getSlotLocal(date, slot.value);
+            const displayEndsAt = addMinutesToIso(startsAt, 30);
+
+            const displayBooking = bookings.find(
               (item) =>
                 item.court_id === selectedCourt.id &&
                 item.cancelled_at === null &&
-                overlaps(item, startsAt, endsAt)
+                overlapsRange(item, startsAt, displayEndsAt)
             );
 
-            if (booking) {
-              const isOwnBooking = booking.user_id === currentUserId;
-              const isExactBookingStart = startsExactlyAt(booking, startsAt);
-
-              if (!isExactBookingStart) {
-                return (
-                  <div className="mobile-time-row blocked" key={slot.value}>
-                    <span className="mobile-time-main">
-                      {halfHourDisplayLabel(slot.value)}
-                    </span>
-                    <span>Belegt</span>
-                  </div>
-                );
-              }
+            if (displayBooking) {
+              const isOwnBooking = displayBooking.user_id === currentUserId;
 
               return (
                 <div
@@ -153,7 +149,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
                   <span className="mobile-time-main">
                     {halfHourDisplayLabel(slot.value)}
                   </span>
-                  <span>{bookingLabel(booking, isOwnBooking)}</span>
+                  <span>{bookingLabel(displayBooking, isOwnBooking)}</span>
                 </div>
               );
             }
