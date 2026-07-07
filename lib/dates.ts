@@ -95,7 +95,7 @@ function makeTimeOptions(firstMinutes: number, lastMinutes: number): TimeOption[
 }
 
 export function bookingStartTimes() {
-  const slots: { value: string; label: string }[] = [];
+  const slots: TimeOption[] = [];
 
   const firstStartHour = 7;
   const lastStartHour = 21;
@@ -103,13 +103,15 @@ export function bookingStartTimes() {
   for (let hour = firstStartHour; hour <= lastStartHour; hour += 1) {
     slots.push({
       value: `${String(hour).padStart(2, "0")}:00`,
-      label: `${String(hour).padStart(2, "0")}:00`
+      label: `${String(hour).padStart(2, "0")}:00`,
+      minutesFromMidnight: hour * 60
     });
 
     if (hour < lastStartHour) {
       slots.push({
         value: `${String(hour).padStart(2, "0")}:30`,
-        label: `${String(hour).padStart(2, "0")}:30`
+        label: `${String(hour).padStart(2, "0")}:30`,
+        minutesFromMidnight: hour * 60 + 30
       });
     }
   }
