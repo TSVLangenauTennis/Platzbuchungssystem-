@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BookingBoard } from "@/components/BookingBoard";
+import { MobileCalendarList } from "@/components/MobileCalendarList";
 import {
   addDays,
   formatDateLong,
   getRangeForView,
   parseDateParam,
-  parseViewParam,
   startOfWeekMonday,
   toDateInputValue
 } from "@/lib/dates";
@@ -20,12 +20,44 @@ export const fetchCache = "force-no-store";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function shortWeekday(date: string) {
+  return new Intl.DateTimeFormat("de-DE", {
+    weekday: "short"
+  }).format(new Date(`${date}T00:00:00`)).replace(".", "");
+}
+
+function shortDate(date: string) {
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit"
+  }).format(new Date(`${date}T00:00:00`));
+}
+
+function calendarHref(date: string, courtId?: number) {
+  const params = new URLSearchParams({
+    date,
+    view: "week"
+  });
+
+  if (courtId) {
+    params.set("court", String(courtId));
+  }
+
+  return `/kalender?${params.toString()}`;
+}
+
 export default async function CalendarPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const date = parseDateParam(params.date);
-  const view = parseViewParam(params.view);
-  const { startsOn, endsBefore } = getRangeForView(date, view);
+  const view = "week" as const;
+  const selectedCourtRaw = Number.parseInt(first(params.court), 10);
+  const selectedCourtId = Number.isFinite(selectedCourtRaw) ? selectedCourtRaw : undefined;
 
+  const { startsOn, endsBefore } = getRangeForView(date, view);
   const supabase = await createClient();
 
   const { data: userData } = await supabase.auth.getUser();
@@ -54,10 +86,15 @@ export default async function CalendarPage({ searchParams }: { searchParams: Sea
   }
 
   const today = toDateInputValue();
-  const currentDate = new Date(`${date}T00:00:00`);
-  const previousDate = toDateInputValue(addDays(currentDate, view === "week" ? -7 : -1));
-  const nextDate = toDateInputValue(addDays(currentDate, view === "week" ? 7 : 1));
   const maxDate = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVANCE_DAYS));
+  const weekStart = startOfWeekMonday(date);
+  const weekStartDate = new Date(`${weekStart}T00:00:00`);
+  const previousWeek = toDateInputValue(addDays(weekStartDate, -7));
+  const nextWeek = toDateInputValue(addDays(weekStartDate, 7));
+
+  const weekDays = Array.from({ length: 7 }, (_, index) =>
+    toDateInputValue(addDays(weekStartDate, index))
+  );
 
   const [{ data: courts }, { data: bookings }] = await Promise.all([
     supabase
@@ -79,54 +116,83 @@ export default async function CalendarPage({ searchParams }: { searchParams: Sea
 
   return (
     <main className="page calendar-only-page">
-      <section className="card calendar-only-header">
+      <section className="calendar-mobile-header card">
+        <Link className="calendar-back-danger" href="/">
+          ← Zurück zur Buchung
+        </Link>
+
         <div>
           <p className="eyebrow">Kalender</p>
-          <h1>{view === "week" ? "Wochenübersicht" : formatDateLong(date)}</h1>
-          <p>Hier sehen Sie freie und belegte Zeiten. Freie Felder können direkt gebucht werden.</p>
+          <h1>{formatDateLong(date)}</h1>
+          <p>Wochenansicht. Tippen Sie auf einen Tag, einen Platz und dann auf eine freie Uhrzeit.</p>
         </div>
-
-        <Link className="button secondary" href={`/?date=${date}&view=${view}`}>
-          Zurück zur Buchung
-        </Link>
       </section>
 
-      <section className="calendar-control card">
-        <div className="calendar-control-actions">
-          <Link className="button secondary" href={`/kalender?date=${previousDate}&view=${view}`}>
-            {view === "week" ? "Vorwoche" : "Vorheriger Tag"}
+      <section className="calendar-mobile-controls card">
+        <div className="calendar-week-status">
+          <span>Wochenansicht</span>
+          <strong>{shortDate(weekDays[0])} – {shortDate(weekDays[6])}</strong>
+        </div>
+
+        <div className="calendar-week-buttons">
+          <Link className="button secondary" href={calendarHref(previousWeek, selectedCourtId)}>
+            ← Vorwoche
           </Link>
 
-          <Link className="button secondary" href={`/kalender?date=${today}&view=${view}`}>
+          <Link className="button" href={calendarHref(today, selectedCourtId)}>
             Heute
           </Link>
 
-          <Link className="button secondary" href={`/kalender?date=${nextDate}&view=${view}`}>
-            {view === "week" ? "Nächste Woche" : "Nächster Tag"}
-          </Link>
-
-          <Link className={view === "day" ? "button" : "button secondary"} href={`/kalender?date=${date}&view=day`}>
-            Tagesansicht
-          </Link>
-
-          <Link className={view === "week" ? "button" : "button secondary"} href={`/kalender?date=${startOfWeekMonday(date)}&view=week`}>
-            Wochenansicht
+          <Link className="button secondary" href={calendarHref(nextWeek, selectedCourtId)}>
+            Nächste Woche →
           </Link>
         </div>
 
-        <form className="calendar-date-form">
-          <label>
-            <span>Datum direkt wählen</span>
-            <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
-          </label>
+        <div className="calendar-day-strip" aria-label="Tage dieser Woche">
+          {weekDays.map((day) => (
+            <Link
+              key={day}
+              className={day === date ? "calendar-day-pill active" : "calendar-day-pill"}
+              href={calendarHref(day, selectedCourtId)}
+              aria-current={day === date ? "page" : undefined}
+            >
+              <strong>{shortWeekday(day)}</strong>
+              <span>{shortDate(day)}</span>
+            </Link>
+          ))}
+        </div>
 
-          <input type="hidden" name="view" value={view} />
+        <details className="calendar-date-details">
+          <summary>Anderes Datum wählen</summary>
 
-          <button type="submit">Anzeigen</button>
-        </form>
+          <form className="calendar-date-form" action="/kalender">
+            <label>
+              <span>Datum</span>
+              <input type="date" name="date" defaultValue={date} min={today} max={maxDate} />
+            </label>
+
+            <input type="hidden" name="view" value="week" />
+
+            {selectedCourtId ? (
+              <input type="hidden" name="court" value={selectedCourtId} />
+            ) : null}
+
+            <button type="submit">Anzeigen</button>
+          </form>
+        </details>
       </section>
 
-      <div className="mobile-calendar-wrap">
+      <div className="mobile-calendar-list">
+        <MobileCalendarList
+          date={date}
+          courts={courts ?? []}
+          bookings={bookings ?? []}
+          currentUserId={user.id}
+          selectedCourtId={selectedCourtId}
+        />
+      </div>
+
+      <div className="desktop-calendar-table mobile-calendar-wrap">
         <BookingBoard
           date={date}
           view={view}
