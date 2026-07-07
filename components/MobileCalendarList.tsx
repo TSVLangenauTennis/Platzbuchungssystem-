@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { bookingStartTimes, formatTime, getSlotLocal } from "@/lib/dates";
 import type { Booking, Court } from "@/lib/types";
 
@@ -6,6 +7,7 @@ type Props = {
   courts: Court[];
   bookings: Booking[];
   currentUserId: string;
+  selectedCourtId?: number;
 };
 
 function overlaps(booking: Booking, startsAt: string, endsAt: string) {
@@ -17,67 +19,133 @@ function overlaps(booking: Booking, startsAt: string, endsAt: string) {
   return bookingStart < slotEnd && bookingEnd > slotStart;
 }
 
-export function MobileCalendarList({ date, courts, bookings, currentUserId }: Props) {
+function formatMobileDate(date: string) {
+  return new Intl.DateTimeFormat("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit"
+  }).format(new Date(`${date}T00:00:00`));
+}
+
+function bookingLabel(booking: Booking, isOwnBooking: boolean) {
+  if (booking.kind === "member") {
+    return isOwnBooking ? "Ihre Buchung" : "Belegt";
+  }
+
+  if (booking.kind === "training") {
+    return "Training";
+  }
+
+  if (booking.kind === "match") {
+    return "Spiel/Turnier";
+  }
+
+  return "Gesperrt";
+}
+
+function courtHref(date: string, courtId: number) {
+  const params = new URLSearchParams({
+    date,
+    view: "week",
+    court: String(courtId)
+  });
+
+  return `/kalender?${params.toString()}`;
+}
+
+export function MobileCalendarList({ date, courts, bookings, currentUserId, selectedCourtId }: Props) {
   const activeCourts = courts.filter((court) => court.is_active);
+  const selectedCourt = activeCourts.find((court) => court.id === selectedCourtId) ?? activeCourts[0];
   const startTimes = bookingStartTimes();
+  const now = Date.now();
+
+  if (!selectedCourt) {
+    return (
+      <section className="mobile-day-calendar card">
+        <h2>Kein aktiver Platz verfügbar</h2>
+        <p>Aktuell ist kein Platz zur Buchung freigegeben.</p>
+      </section>
+    );
+  }
+
+  const visibleSlots = startTimes.filter((slot) => {
+    const { startsAt } = getSlotLocal(date, slot.value);
+    return new Date(startsAt).getTime() > now;
+  });
 
   return (
     <section className="mobile-day-calendar card">
       <div className="mobile-day-calendar-head">
-        <p className="eyebrow">Handyansicht</p>
-        <h2>Freie Zeiten</h2>
-        <p>Tippen Sie auf einen freien Platz, um diese Zeit zu buchen.</p>
+        <p className="eyebrow">Buchbare Zeiten</p>
+        <h2>{formatMobileDate(date)}</h2>
+        <p>Wählen Sie zuerst den Platz und danach eine freie Uhrzeit.</p>
       </div>
 
-      <div className="mobile-slot-list">
-        {startTimes.map((slot) => {
-          const { startsAt, endsAt } = getSlotLocal(date, slot.value);
-
-          return (
-            <section className="mobile-time-card" key={slot.value}>
-              <div className="mobile-time-title">
-                {slot.label}–{formatTime(endsAt)}
-              </div>
-
-              <div className="mobile-court-grid">
-                {activeCourts.map((court) => {
-                  const booking = bookings.find(
-                    (item) =>
-                      item.court_id === court.id &&
-                      item.cancelled_at === null &&
-                      overlaps(item, startsAt, endsAt)
-                  );
-
-                  if (booking) {
-                    const isOwnBooking = booking.user_id === currentUserId;
-
-                    return (
-                      <div className="mobile-court-pill occupied" key={court.id}>
-                        <strong>{court.name}</strong>
-                        <span>{isOwnBooking ? "Ihre Buchung" : "Belegt"}</span>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <form action="/confirm-booking" method="get" key={court.id}>
-                      <input type="hidden" name="date" value={date} />
-                      <input type="hidden" name="startTime" value={slot.value} />
-                      <input type="hidden" name="courtId" value={court.id} />
-                      <input type="hidden" name="view" value="day" />
-
-                      <button className="mobile-court-pill free" type="submit">
-                        <strong>{court.name}</strong>
-                        <span>Frei</span>
-                      </button>
-                    </form>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
+      <div className="mobile-place-tabs" aria-label="Platz auswählen">
+        {activeCourts.map((court) => (
+          <Link
+            key={court.id}
+            className={court.id === selectedCourt.id ? "mobile-place-tab active" : "mobile-place-tab"}
+            href={courtHref(date, court.id)}
+            aria-current={court.id === selectedCourt.id ? "page" : undefined}
+          >
+            {court.name}
+          </Link>
+        ))}
       </div>
+
+      <div className="mobile-selected-court">
+        <strong>{selectedCourt.name}</strong>
+        <span>Grüne Zeiten sind frei und können direkt gebucht werden.</span>
+      </div>
+
+      {visibleSlots.length === 0 ? (
+        <p className="notice">Für diesen Tag sind keine buchbaren Zeiten mehr verfügbar.</p>
+      ) : (
+        <div className="mobile-time-list">
+          {visibleSlots.map((slot) => {
+            const { startsAt, endsAt } = getSlotLocal(date, slot.value);
+            const booking = bookings.find(
+              (item) =>
+                item.court_id === selectedCourt.id &&
+                item.cancelled_at === null &&
+                overlaps(item, startsAt, endsAt)
+            );
+
+            if (booking) {
+              const isOwnBooking = booking.user_id === currentUserId;
+
+              return (
+                <div
+                  className={isOwnBooking ? "mobile-time-row occupied own" : "mobile-time-row occupied"}
+                  key={slot.value}
+                >
+                  <span className="mobile-time-main">
+                    {slot.label}–{formatTime(endsAt)}
+                  </span>
+                  <span>{bookingLabel(booking, isOwnBooking)}</span>
+                </div>
+              );
+            }
+
+            return (
+              <form action="/confirm-booking" method="get" key={slot.value}>
+                <input type="hidden" name="date" value={date} />
+                <input type="hidden" name="startTime" value={slot.value} />
+                <input type="hidden" name="courtId" value={selectedCourt.id} />
+                <input type="hidden" name="view" value="week" />
+
+                <button className="mobile-time-row free" type="submit">
+                  <span className="mobile-time-main">
+                    {slot.label}–{formatTime(endsAt)}
+                  </span>
+                  <span>Frei buchen</span>
+                </button>
+              </form>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
