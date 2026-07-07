@@ -140,7 +140,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
                     <span className="mobile-time-main">
                       {halfHourDisplayLabel(slot.value)}
                     </span>
-                    <span>Blockiert</span>
+                    <span>Belegt</span>
                   </div>
                 );
               }
