@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bookingStartTimes, formatTime, getSlotLocal } from "@/lib/dates";
+import { bookingStartTimes, getSlotLocal } from "@/lib/dates";
 import type { Booking, Court } from "@/lib/types";
 
 type Props = {
@@ -17,6 +17,24 @@ function overlaps(booking: Booking, startsAt: string, endsAt: string) {
   const slotEnd = new Date(endsAt).getTime();
 
   return bookingStart < slotEnd && bookingEnd > slotStart;
+}
+
+function startsExactlyAt(booking: Booking, startsAt: string) {
+  return new Date(booking.starts_at).getTime() === new Date(startsAt).getTime();
+}
+
+function halfHourDisplayLabel(startTime: string) {
+  const [hoursRaw, minutesRaw] = startTime.split(":");
+  const hours = Number.parseInt(hoursRaw, 10);
+  const minutes = Number.parseInt(minutesRaw, 10);
+
+  const startTotal = hours * 60 + minutes;
+  const endTotal = startTotal + 30;
+
+  const endHours = Math.floor(endTotal / 60);
+  const endMinutes = endTotal % 60;
+
+  return `${startTime}–${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
 }
 
 function formatMobileDate(date: string) {
@@ -78,7 +96,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
       <div className="mobile-day-calendar-head">
         <p className="eyebrow">Buchbare Zeiten</p>
         <h2>{formatMobileDate(date)}</h2>
-        <p>Wählen Sie zuerst den Platz und danach eine freie Uhrzeit.</p>
+        <p>Wählen Sie zuerst den Platz und danach eine freie Startzeit.</p>
       </div>
 
       <div className="mobile-place-tabs" aria-label="Platz auswählen">
@@ -96,7 +114,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
 
       <div className="mobile-selected-court">
         <strong>{selectedCourt.name}</strong>
-        <span>Grüne Zeiten sind frei und können direkt gebucht werden.</span>
+        <span>Grüne Zeiten sind frei. Eine Buchung dauert immer 60 Minuten.</span>
       </div>
 
       {visibleSlots.length === 0 ? (
@@ -114,6 +132,18 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
 
             if (booking) {
               const isOwnBooking = booking.user_id === currentUserId;
+              const isExactBookingStart = startsExactlyAt(booking, startsAt);
+
+              if (!isExactBookingStart) {
+                return (
+                  <div className="mobile-time-row blocked" key={slot.value}>
+                    <span className="mobile-time-main">
+                      {halfHourDisplayLabel(slot.value)}
+                    </span>
+                    <span>Blockiert</span>
+                  </div>
+                );
+              }
 
               return (
                 <div
@@ -121,7 +151,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
                   key={slot.value}
                 >
                   <span className="mobile-time-main">
-                    {slot.label}–{formatTime(endsAt)}
+                    {halfHourDisplayLabel(slot.value)}
                   </span>
                   <span>{bookingLabel(booking, isOwnBooking)}</span>
                 </div>
@@ -137,7 +167,7 @@ export function MobileCalendarList({ date, courts, bookings, currentUserId, sele
 
                 <button className="mobile-time-row free" type="submit">
                   <span className="mobile-time-main">
-                    {slot.label}–{formatTime(endsAt)}
+                    {halfHourDisplayLabel(slot.value)}
                   </span>
                   <span>Frei buchen</span>
                 </button>
