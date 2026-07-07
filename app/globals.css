@@ -2591,3 +2591,16 @@ button {
     min-height: 62px;
   }
 }
+/* Einheitliche Anzeige: nicht buchbare Zeiten rot als Belegt */
+
+.mobile-time-row.blocked {
+  border: 2px solid #ef4444 !important;
+  background: #fee2e2 !important;
+  color: #7f1d1d !important;
+}
+
+.mobile-time-row.blocked .mobile-time-main,
+.mobile-time-row.blocked span {
+  color: #7f1d1d !important;
+  font-weight: 950;
+}
