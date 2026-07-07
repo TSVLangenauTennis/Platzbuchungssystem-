@@ -94,8 +94,27 @@ function makeTimeOptions(firstMinutes: number, lastMinutes: number): TimeOption[
   return options;
 }
 
-export function bookingStartTimes(): TimeOption[] {
-  return makeTimeOptions(OPENING_HOUR * 60, CLOSING_HOUR * 60 - SLOT_MINUTES);
+export function bookingStartTimes() {
+  const slots: { value: string; label: string }[] = [];
+
+  const firstStartHour = 7;
+  const lastStartHour = 21;
+
+  for (let hour = firstStartHour; hour <= lastStartHour; hour += 1) {
+    slots.push({
+      value: `${String(hour).padStart(2, "0")}:00`,
+      label: `${String(hour).padStart(2, "0")}:00`
+    });
+
+    if (hour < lastStartHour) {
+      slots.push({
+        value: `${String(hour).padStart(2, "0")}:30`,
+        label: `${String(hour).padStart(2, "0")}:30`
+      });
+    }
+  }
+
+  return slots;
 }
 
 export function adminStartTimes(): TimeOption[] {
