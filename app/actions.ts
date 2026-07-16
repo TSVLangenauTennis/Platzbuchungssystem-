@@ -602,12 +602,12 @@ export async function createAnnouncement(formData: FormData) {
         : null
     });
 
-  if (error) {
-    redirectToAnnouncements(
-      "error",
-      "Die Ankündigung konnte nicht veröffentlicht werden."
-    );
-  }
+ if (error) {
+  redirectToAnnouncements(
+    "error",
+    `${error.message}`
+  );
+}
 
   revalidatePath("/");
   revalidatePath("/ankundigungen");
