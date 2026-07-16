@@ -2604,3 +2604,40 @@ button {
   color: #7f1d1d !important;
   font-weight: 950;
 }
+/* Ankündigungsbutton: rot bei ungelesenen Mitteilungen */
+
+.mobile-quick-nav .announcement-link {
+  position: relative;
+}
+
+.mobile-quick-nav .announcement-link.unread {
+  background: #dc2626;
+}
+
+.mobile-quick-nav .announcement-link.unread:hover {
+  background: #b91c1c;
+}
+
+.announcement-badge {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+
+  border-radius: 999px;
+  background: #ffffff;
+  color: #b91c1c;
+
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+
+  box-shadow: 0 4px 12px rgba(127, 29, 29, 0.25);
+}
