@@ -67,14 +67,33 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
   const today = toDateInputValue();
   const myBookingsEnd = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVANCE_DAYS + 1));
-const [{ data: announcements }] = await Promise.all([
+const [
+  { data: announcements },
+  { data: announcementReads }
+] = await Promise.all([
   supabase
     .from("announcements")
     .select("id, title, message, created_at, created_by, is_active, expires_at")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
-    .returns<Announcement[]>()
+    .returns<Announcement[]>(),
+
+  supabase
+    .from("announcement_reads")
+    .select("announcement_id")
+    .eq("user_id", user.id)
 ]);
+  const readAnnouncementIds = new Set(
+  (announcementReads ?? []).map(
+    (item) => item.announcement_id
+  )
+);
+
+const unreadAnnouncementCount =
+  (announcements ?? []).filter(
+    (announcement) =>
+      !readAnnouncementIds.has(announcement.id)
+  ).length;
   
   const [{ data: courts }, { data: bookings }, { data: myBookings }] = await Promise.all([
     supabase.from("courts").select("id, name, is_active").order("id", { ascending: true }).returns<Court[]>(),
