@@ -32,7 +32,13 @@ function redirectToCourts(type: "success" | "error", message: string): never {
   const params = new URLSearchParams({ [type]: message });
   redirect(`/admin/courts?${params.toString()}`);
 }
-
+function redirectToAnnouncements(
+  type: "success" | "error",
+  message: string
+): never {
+  const params = new URLSearchParams({ [type]: message });
+  redirect(`/ankundigungen?${params.toString()}`);
+}
 function assertBookableDate(dateValue: string) {
   const today = new Date();
   const earliest = new Date(`${toDateInputValue(today)}T00:00:00`);
