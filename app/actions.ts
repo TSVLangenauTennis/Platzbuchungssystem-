@@ -574,3 +574,46 @@ const announcementSchema = z.object({
   message: z.string().trim().min(2).max(1000),
   expiresAt: z.string().optional().or(z.literal(""))
 });
+export async function createAnnouncement(formData: FormData) {
+  const parsed = announcementSchema.safeParse({
+    title: formData.get("title"),
+    message: formData.get("message"),
+    expiresAt: formData.get("expiresAt") || ""
+  });
+
+  if (!parsed.success) {
+    redirectToAnnouncements(
+      "error",
+      "Bitte Titel und Mitteilung vollständig ausfüllen."
+    );
+  }
+
+  const { supabase, user } = await assertAdmin();
+
+  const { error } = await supabase
+    .from("announcements")
+    .insert({
+      title: parsed.data.title,
+      message: parsed.data.message,
+      created_by: user.id,
+      is_active: true,
+      expires_at: parsed.data.expiresAt
+        ? `${parsed.data.expiresAt}T23:59:59`
+        : null
+    });
+
+  if (error) {
+    redirectToAnnouncements(
+      "error",
+      "Die Ankündigung konnte nicht veröffentlicht werden."
+    );
+  }
+
+  revalidatePath("/");
+  revalidatePath("/ankundigungen");
+
+  redirectToAnnouncements(
+    "success",
+    "Ankündigung veröffentlicht."
+  );
+}
