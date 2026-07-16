@@ -46,3 +46,18 @@ export type AuditLog = {
   metadata: Record<string, unknown> | null;
   created_at: string;
 };
+export type Announcement = {
+  id: string;
+  title: string;
+  message: string;
+  created_at: string;
+  created_by: string;
+  is_active: boolean;
+  expires_at: string | null;
+};
+
+export type AnnouncementRead = {
+  announcement_id: string;
+  user_id: string;
+  read_at: string;
+};
