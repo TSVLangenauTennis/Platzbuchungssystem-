@@ -138,7 +138,18 @@ const unreadAnnouncementCount =
   <a href="/kalender">Kalender</a>
   <a href="#einfach-buchen">Platz buchen</a>
   <a href="#meine-buchungen">Meine Buchungen</a>
-  <a href="/ankundigungen">Ankündigungen</a>
+  <a
+  href="/ankundigungen"
+  className={unreadAnnouncementCount > 0 ? "announcement-link unread" : "announcement-link"}
+>
+  <span>Ankündigungen</span>
+
+  {unreadAnnouncementCount > 0 ? (
+    <span className="announcement-badge">
+      {unreadAnnouncementCount}
+    </span>
+  ) : null}
+</a>
 </nav>
 
       {success ? <p className="notice success">{success}</p> : null}
