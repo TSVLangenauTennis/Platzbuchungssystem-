@@ -124,7 +124,6 @@ export default async function AnkuendigungenPage({
 
       <section className="card announcements-section">
         <div className="announcements-title">
-          <p className="eyebrow">AKTUELLES</p>
           <h1>Ankündigungen</h1>
           <p>
             Hier finden Sie aktuelle Informationen des Vereins.
