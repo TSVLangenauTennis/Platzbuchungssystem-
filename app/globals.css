@@ -2641,3 +2641,73 @@ button {
 
   box-shadow: 0 4px 12px rgba(127, 29, 29, 0.25);
 }
+/* Mobile Optimierung für Ankündigungen */
+
+.announcement-admin-card {
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.announcement-admin-card .section-heading {
+  padding: 18px 18px 0;
+}
+
+.announcement-admin-form {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.announcement-admin-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 850;
+}
+
+.announcement-admin-form input,
+.announcement-admin-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  color: var(--text);
+  padding: 12px;
+}
+
+.announcement-admin-form textarea {
+  resize: vertical;
+  min-height: 130px;
+  line-height: 1.5;
+}
+
+.announcement-admin-form button {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 16px;
+}
+
+@media (max-width: 760px) {
+  .announcement-admin-card .section-heading {
+    padding: 14px 14px 0;
+  }
+
+  .announcement-admin-form {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .announcement-admin-form input,
+  .announcement-admin-form textarea {
+    font-size: 16px;
+    min-height: 52px;
+  }
+
+  .announcement-admin-form textarea {
+    min-height: 150px;
+  }
+
+  .announcement-admin-form button {
+    min-height: 58px;
+    font-size: 17px;
+  }
+}
