@@ -118,7 +118,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Sea
     <main className="page calendar-only-page">
       <section className="calendar-mobile-header card">
         <Link className="calendar-back-danger" href="/">
-          ← Zurück zur Buchung
+          ← Zurück zur Startseite
         </Link>
 
         <div>
