@@ -112,11 +112,11 @@ export default async function AnkuendigungenPage({
         </p>
       ) : null}
 
-      {announcementsError ? (
-        <p className="notice error">
-          Die Ankündigungen konnten nicht geladen werden.
-        </p>
-      ) : null}
+   {announcementsError ? (
+  <p className="notice error">
+    {announcementsError.message}
+  </p>
+) : null}
 
       {profile.is_admin ? (
         <AdminAnnouncementForm />
