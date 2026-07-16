@@ -12,7 +12,7 @@ import { signOut } from "@/app/actions";
 import { addDays, getRangeForView, parseDateParam, parseViewParam, toDateInputValue } from "@/lib/dates";
 import { MAX_ADVANCE_DAYS, MEMBER_LIST_LIMIT } from "@/lib/config";
 import { createClient } from "@/lib/supabase/server";
-import type { Booking, Court, Profile } from "@/lib/types";
+import type { Announcement, Booking, Court, Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -67,7 +67,15 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
 
   const today = toDateInputValue();
   const myBookingsEnd = toDateInputValue(addDays(new Date(`${today}T00:00:00`), MAX_ADVANCE_DAYS + 1));
-
+const [{ data: announcements }] = await Promise.all([
+  supabase
+    .from("announcements")
+    .select("id, title, message, created_at, created_by, is_active, expires_at")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .returns<Announcement[]>()
+]);
+  
   const [{ data: courts }, { data: bookings }, { data: myBookings }] = await Promise.all([
     supabase.from("courts").select("id, name, is_active").order("id", { ascending: true }).returns<Court[]>(),
     supabase
