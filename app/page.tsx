@@ -107,9 +107,10 @@ const isApproved = Boolean(profile?.is_approved || profile?.is_admin || approved
     <main className="page">
       <Header date={date} view={view} userName={userName} isAdmin={isAdmin} />
       <nav className="mobile-quick-nav" aria-label="Schnellnavigation">
+  <a href="/kalender">Kalender</a>
   <a href="#einfach-buchen">Platz buchen</a>
   <a href="#meine-buchungen">Meine Buchungen</a>
-  <a href="/kalender">Kalender</a>
+  <a href="/ankundigungen">Ankündigungen</a>
 </nav>
 
       {success ? <p className="notice success">{success}</p> : null}
