@@ -569,3 +569,8 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+const announcementSchema = z.object({
+  title: z.string().trim().min(2).max(100),
+  message: z.string().trim().min(2).max(1000),
+  expiresAt: z.string().optional().or(z.literal(""))
+});
