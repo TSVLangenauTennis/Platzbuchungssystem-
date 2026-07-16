@@ -27,7 +27,8 @@ function PendingApproval({ userName }: { userName: string }) {
         <h1>Konto wartet auf Freigabe</h1>
         <p>
           Hallo {userName}, Ihr Konto ist registriert, aber noch nicht durch einen Admin freigegeben.
-          Sobald ein Admin Sie freigibt, können Sie Plätze buchen und den Kalender sehen.
+          Sobald ein Admin Sie freigibt, können Sie Plätze buchen und den Kalender sehen. 
+          Dies kann bis zu 48h in Anspruch nehmen.
         </p>
         <form action={signOut}>
           <button className="secondary" type="submit">Abmelden</button>
