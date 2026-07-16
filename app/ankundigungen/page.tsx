@@ -96,7 +96,7 @@ export default async function AnkuendigungenPage({
     <main className="page">
       <div className="announcements-page-top">
         <a href="/" className="button secondary">
-          Zurück zur Platzbuchung
+          Zurück zur Startseite
         </a>
       </div>
 
@@ -133,7 +133,7 @@ export default async function AnkuendigungenPage({
 
         {!announcements || announcements.length === 0 ? (
           <div className="announcements-empty-state">
-            <strong>Keine aktuellen Ankündigungen</strong>
+            <strong>Ankündigungen</strong>
             <p>
               Momentan liegen keine neuen Vereinsmitteilungen vor.
             </p>
