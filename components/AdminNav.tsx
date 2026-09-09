@@ -5,6 +5,7 @@ const adminLinks = [
   { href: "/admin/members", label: "Mitglieder" },
   { href: "/admin/bookings", label: "Buchungen" },
   { href: "/admin/courts", label: "Plätze" },
+  { href: "/admin/vorschlaege", label: "Vorschläge" },
   { href: "/admin/audit", label: "Protokoll" }
 ];
 

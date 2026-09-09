@@ -85,11 +85,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Sear
           <p>{approvedCount} freigegeben · {pendingCount} wartend · {adminCount} Admins · Auslegung: {MAX_EXPECTED_MEMBERS} Mitglieder.</p>
         </div>
         <div className="header-actions">
-          <Link className="button secondary" href="/admin">Admin-Übersicht</Link>
           <Link className="button secondary" href="/">Zur Buchung</Link>
-          <Link className="button secondary" href="/admin/bookings">Buchungen</Link>
-          <Link className="button secondary" href="/admin/courts">Plätze</Link>
-          <Link className="button secondary" href="/admin/audit">Protokoll</Link>
           <Link className="button secondary" href="/admin/export/members">Mitglieder-CSV</Link>
         </div>
       </header>
@@ -138,6 +134,28 @@ export default async function MembersPage({ searchParams }: { searchParams: Sear
         </section>
       ) : null}
 
+      {pendingCount > 0 ? (
+        <section className="mobile-request-cards">
+          {list
+            .filter((profile) => !profile.is_approved && !profile.is_admin)
+            .map((profile) => (
+              <article key={profile.id} className="card request-card">
+                <div>
+                  <strong>{profile.full_name}</strong>
+                  {profile.email ? <span>{profile.email}</span> : null}
+                  {profile.phone ? <span>{profile.phone}</span> : null}
+                  {profile.member_number ? <span>Mitgliedsnummer: {profile.member_number}</span> : null}
+                  <span className="request-card-date">Registriert: {formatDateTime(profile.created_at)}</span>
+                </div>
+                <form action={approveMember}>
+                  <input type="hidden" name="profileId" value={profile.id} />
+                  <button className="large-primary" type="submit">Anfrage annehmen</button>
+                </form>
+              </article>
+            ))}
+        </section>
+      ) : null}
+
       <section className="card member-card">
         <div className="member-table-wrap">
           <table className="member-table">
@@ -154,19 +172,19 @@ export default async function MembersPage({ searchParams }: { searchParams: Sear
             <tbody>
               {visibleList.map((profile) => (
                 <tr key={profile.id}>
-                  <td>
+                  <td data-label="Name">
                     <strong>{profile.full_name}</strong>
                     {profile.member_number ? <small>Mitgliedsnummer: {profile.member_number}</small> : null}
                     {profile.id === user.id ? <small>Sie selbst</small> : null}
                   </td>
-                  <td>
+                  <td data-label="Kontakt">
                     <strong>{profile.email ?? "—"}</strong>
                     {profile.phone ? <small>{profile.phone}</small> : null}
                   </td>
-                  <td><StatusPill profile={profile} /></td>
-                  <td>{formatDateTime(profile.created_at)}</td>
-                  <td>{formatDateTime(profile.approved_at)}</td>
-                  <td>
+                  <td data-label="Status"><StatusPill profile={profile} /></td>
+                  <td data-label="Registriert">{formatDateTime(profile.created_at)}</td>
+                  <td data-label="Freigegeben">{formatDateTime(profile.approved_at)}</td>
+                  <td data-label="Aktion">
                     <div className="member-actions">
                       {!profile.is_approved && !profile.is_admin ? (
                         <form action={approveMember}>

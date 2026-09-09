@@ -92,11 +92,7 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
           <p>Aktive Buchungen und feste Termine filtern, prüfen und löschen.</p>
         </div>
         <div className="header-actions">
-          <Link className="button secondary" href="/admin">Admin-Übersicht</Link>
           <Link className="button secondary" href="/">Zur Buchung</Link>
-          <Link className="button secondary" href="/admin/members">Mitglieder</Link>
-          <Link className="button secondary" href="/admin/courts">Plätze</Link>
-          <Link className="button secondary" href="/admin/audit">Protokoll</Link>
           <Link className="button secondary" href={`/admin/export/bookings?${exportParams.toString()}`}>CSV-Export</Link>
         </div>
       </header>
@@ -157,13 +153,13 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
             <tbody>
               {filteredBookings.map((booking) => (
                 <tr key={booking.id}>
-                  <td>{formatDateLong(dateValue(booking.starts_at))}</td>
-                  <td>{formatTime(booking.starts_at)}–{formatTime(booking.ends_at)}</td>
-                  <td>{byCourt.get(booking.court_id) ?? `Platz ${booking.court_id}`}</td>
-                  <td><span className="pill muted">{kindLabel[booking.kind] ?? booking.kind}</span></td>
-                  <td><strong>{booking.title}</strong></td>
-                  <td>{booking.notes ?? "—"}</td>
-                  <td>
+                  <td data-label="Datum">{formatDateLong(dateValue(booking.starts_at))}</td>
+                  <td data-label="Zeit">{formatTime(booking.starts_at)}–{formatTime(booking.ends_at)}</td>
+                  <td data-label="Platz">{byCourt.get(booking.court_id) ?? `Platz ${booking.court_id}`}</td>
+                  <td data-label="Art"><span className="pill muted">{kindLabel[booking.kind] ?? booking.kind}</span></td>
+                  <td data-label="Titel"><strong>{booking.title}</strong></td>
+                  <td data-label="Hinweis">{booking.notes ?? "—"}</td>
+                  <td data-label="Aktion">
                     <form action={cancelBookingAsAdmin}>
                       <input type="hidden" name="id" value={booking.id} />
                       <button className="danger small-button" type="submit">Löschen</button>

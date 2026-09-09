@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requestPasswordReset, signIn, signUp } from "@/app/actions";
 import { CLUB_CONTACT_EMAIL, CLUB_NAME, MIN_PASSWORD_LENGTH } from "@/lib/config";
 
@@ -88,6 +89,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
 
             <input className="hp-field" name="website" tabIndex={-1} autoComplete="off" />
 
+            <label className="checkbox-field">
+              <input type="checkbox" name="privacyConsent" required />
+              <span>
+                Ich habe die <Link href="/datenschutz" target="_blank">Datenschutzhinweise</Link> gelesen und bin
+                mit der Verarbeitung meiner Daten zur Platzbuchung einverstanden.
+              </span>
+            </label>
+
             <button type="submit">
               Konto erstellen
             </button>
@@ -122,6 +131,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
             </p>
           </form>
         </details>
+
+        <p className="login-legal-links">
+          <Link href="/datenschutz">Datenschutz</Link>
+          <span aria-hidden="true"> · </span>
+          <Link href="/impressum">Impressum</Link>
+        </p>
       </section>
     </main>
   );

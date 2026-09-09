@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { MAX_ADVANCE_DAYS, MAX_WEEKLY_REPEAT_OCCURRENCES, MIN_PASSWORD_LENGTH, SITE_URL } from "@/lib/config";
+import { MAX_ADVANCE_DAYS, MAX_WEEKLY_REPEAT_OCCURRENCES, MEMBER_BOOKING_LEAD_MINUTES, MIN_PASSWORD_LENGTH, SITE_URL } from "@/lib/config";
 import { addDays, adminEndTimes, adminStartTimes, bookingStartTimes, createWeeklyDates, getSlotLocal, getTimeRangeLocal, isValidTimeOption, parseViewParam, timeToMinutes, toDateInputValue } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import type { Booking, BookingKind, CalendarView } from "@/lib/types";
@@ -32,6 +32,11 @@ function redirectToCourts(type: "success" | "error", message: string): never {
   const params = new URLSearchParams({ [type]: message });
   redirect(`/admin/courts?${params.toString()}`);
 }
+function redirectToHome(type: "success" | "error", message: string): never {
+  const params = new URLSearchParams({ [type]: message });
+  redirect(`/?${params.toString()}`);
+}
+
 function redirectToAnnouncements(
   type: "success" | "error",
   message: string
@@ -50,11 +55,17 @@ function assertBookableDate(dateValue: string) {
   if (selected > latest) throw new Error(`Buchungen sind maximal ${MAX_ADVANCE_DAYS} Tage im Voraus möglich.`);
 }
 
-function assertBookableSlot(dateValue: string, startTime: string) {
+function assertBookableSlot(dateValue: string, startTime: string, options?: { leadMinutes?: number }) {
   assertBookableDate(dateValue);
   const startsAt = new Date(`${dateValue}T${startTime}:00`);
   if (Number.isNaN(startsAt.getTime())) throw new Error("Ungültige Startzeit.");
   if (startsAt.getTime() <= Date.now()) throw new Error("Vergangene Uhrzeiten können nicht gebucht werden.");
+
+  const leadMinutes = options?.leadMinutes ?? 0;
+  if (leadMinutes > 0 && startsAt.getTime() - Date.now() < leadMinutes * 60_000) {
+    const hours = leadMinutes / 60;
+    throw new Error(`Buchungen sind nur bis ${hours} Stunde${hours === 1 ? "" : "n"} vor Spielbeginn möglich.`);
+  }
 }
 
 async function getCurrentUserOrRedirect() {
@@ -95,7 +106,7 @@ export async function bookCourt(formData: FormData) {
   const { date, startTime, courtId, notes } = parsed.data;
 
   try {
-    assertBookableSlot(date, startTime);
+    assertBookableSlot(date, startTime, { leadMinutes: MEMBER_BOOKING_LEAD_MINUTES });
   } catch (error) {
     redirectToCalendar(date, view, "error", error instanceof Error ? error.message : "Buchung nicht möglich.");
   }
@@ -507,18 +518,20 @@ export async function signUp(formData: FormData) {
     phone: z.string().trim().max(40).optional().or(z.literal("")),
     memberNumber: z.string().trim().max(40).optional().or(z.literal("")),
     password: z.string().min(MIN_PASSWORD_LENGTH),
-    website: z.string().optional().or(z.literal(""))
+    website: z.string().optional().or(z.literal("")),
+    privacyConsent: z.literal("on")
   }).safeParse({
     fullName: formData.get("fullName"),
     email: formData.get("email"),
     phone: formData.get("phone") || "",
     memberNumber: formData.get("memberNumber") || "",
     password: formData.get("password"),
-    website: formData.get("website") || ""
+    website: formData.get("website") || "",
+    privacyConsent: formData.get("privacyConsent") || ""
   });
 
   if (!parsed.success) {
-    redirect(`/login?error=${encodeURIComponent(`Registrierung unvollständig. Passwort mindestens ${MIN_PASSWORD_LENGTH} Zeichen.`)}`);
+    redirect(`/login?error=${encodeURIComponent(`Registrierung unvollständig. Passwort mindestens ${MIN_PASSWORD_LENGTH} Zeichen, Datenschutz muss bestätigt werden.`)}`);
   }
 
   if (parsed.data.website) redirect(`/login?error=${encodeURIComponent("Registrierung fehlgeschlagen.")}`);
@@ -616,4 +629,40 @@ export async function createAnnouncement(formData: FormData) {
     "success",
     "Ankündigung veröffentlicht."
   );
+}
+
+const suggestionSchema = z.object({
+  message: z.string().trim().min(3).max(1000)
+});
+
+export async function submitSuggestion(formData: FormData) {
+  const parsed = suggestionSchema.safeParse({
+    message: formData.get("message")
+  });
+
+  if (!parsed.success) {
+    redirectToHome("error", "Bitte einen etwas längeren Vorschlag eingeben (mind. 3 Zeichen).");
+  }
+
+  const { supabase } = await getCurrentUserOrRedirect();
+
+  const { error } = await supabase.rpc("submit_suggestion", {
+    p_message: parsed.data.message
+  });
+
+  if (error) redirectToHome("error", "Vorschlag konnte nicht gespeichert werden.");
+
+  revalidatePath("/");
+  redirectToHome("success", "Danke für Ihren Vorschlag! Er wurde anonym übermittelt.");
+}
+
+const markSuggestionSchema = z.object({ id: z.string().uuid() });
+
+export async function markSuggestionRead(formData: FormData) {
+  const parsed = markSuggestionSchema.safeParse({ id: formData.get("id") });
+  if (!parsed.success) return;
+
+  const { supabase } = await assertAdmin();
+  await supabase.from("suggestions").update({ is_read: true }).eq("id", parsed.data.id);
+  revalidatePath("/admin/vorschlaege");
 }

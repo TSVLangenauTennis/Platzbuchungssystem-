@@ -5,6 +5,7 @@ import { BookingRules } from "@/components/BookingRules";
 import { Header } from "@/components/Header";
 import { SimpleBookingForm } from "@/components/SimpleBookingForm";
 import { MemberHelp } from "@/components/MemberHelp";
+import { SuggestionBox } from "@/components/SuggestionBox";
 import { Footer } from "@/components/Footer";
 import { MyBookings } from "@/components/MyBookings";
 import { AdminMemberBookingForm } from "@/components/AdminMemberBookingForm";
@@ -164,6 +165,8 @@ const unreadAnnouncementCount =
 <MemberHelp />
 
 <BookingRules />
+
+<SuggestionBox />
 
 {isAdmin ? (
   <AvailabilitySummary date={date} view={view} courts={courts ?? []} bookings={bookings ?? []} />

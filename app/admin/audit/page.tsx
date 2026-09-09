@@ -75,11 +75,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
           <p>Nachvollziehbarkeit für Buchungen, Stornierungen, Freigaben und Adminrechte.</p>
         </div>
         <div className="header-actions">
-          <Link className="button secondary" href="/admin">Admin-Übersicht</Link>
           <Link className="button secondary" href="/">Zur Buchung</Link>
-          <Link className="button secondary" href="/admin/members">Mitglieder</Link>
-          <Link className="button secondary" href="/admin/bookings">Buchungen</Link>
-          <Link className="button secondary" href="/admin/courts">Plätze</Link>
         </div>
       </header>
 
@@ -115,10 +111,10 @@ export default async function AuditPage({ searchParams }: { searchParams: Search
             <tbody>
               {(logs ?? []).map((log) => (
                 <tr key={log.id}>
-                  <td>{formatDateTime(log.created_at)}</td>
-                  <td><span className="pill muted">{actionLabel[log.action] ?? log.action}</span></td>
-                  <td>{log.entity_type}</td>
-                  <td>{metadataSummary(log.metadata)}</td>
+                  <td data-label="Zeitpunkt">{formatDateTime(log.created_at)}</td>
+                  <td data-label="Aktion"><span className="pill muted">{actionLabel[log.action] ?? log.action}</span></td>
+                  <td data-label="Objekt">{log.entity_type}</td>
+                  <td data-label="Details">{metadataSummary(log.metadata)}</td>
                 </tr>
               ))}
               {(logs ?? []).length === 0 ? <tr><td colSpan={4}>Keine Protokolleinträge gefunden.</td></tr> : null}

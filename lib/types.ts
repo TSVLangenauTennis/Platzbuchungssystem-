@@ -61,3 +61,10 @@ export type AnnouncementRead = {
   user_id: string;
   read_at: string;
 };
+
+export type Suggestion = {
+  id: string;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+};

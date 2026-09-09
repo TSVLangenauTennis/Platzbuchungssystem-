@@ -79,10 +79,6 @@ export default async function AdminDashboard() {
         </div>
         <div className="header-actions">
           <Link className="button secondary" href="/">Zur Buchung</Link>
-          <Link className="button secondary" href="/admin/members">Mitglieder</Link>
-          <Link className="button secondary" href="/admin/bookings">Buchungen</Link>
-          <Link className="button secondary" href="/admin/courts">Plätze</Link>
-          <Link className="button secondary" href="/admin/audit">Protokoll</Link>
         </div>
       </header>
 
@@ -103,6 +99,7 @@ export default async function AdminDashboard() {
           <div className="quick-links">
             <Link className="button" href="/admin/members?status=pending">Wartende Mitglieder prüfen</Link>
             <Link className="button secondary" href="/admin/bookings">Buchungen verwalten</Link>
+            <Link className="button secondary" href="/admin/vorschlaege">Vorschläge lesen</Link>
             <Link className="button secondary" href="/admin/export/bookings">Buchungen exportieren</Link>
             <Link className="button secondary" href="/admin/export/members">Mitglieder exportieren</Link>
           </div>
@@ -136,11 +133,11 @@ export default async function AdminDashboard() {
             <tbody>
               {(todayBookings ?? []).map((booking) => (
                 <tr key={booking.id}>
-                  <td>{formatTime(booking.starts_at)}–{formatTime(booking.ends_at)}</td>
-                  <td>Platz {booking.court_id}</td>
-                  <td><span className="pill muted">{kindLabel[booking.kind] ?? booking.kind}</span></td>
-                  <td><strong>{booking.title}</strong></td>
-                  <td>{booking.notes ?? "—"}</td>
+                  <td data-label="Zeit">{formatTime(booking.starts_at)}–{formatTime(booking.ends_at)}</td>
+                  <td data-label="Platz">Platz {booking.court_id}</td>
+                  <td data-label="Art"><span className="pill muted">{kindLabel[booking.kind] ?? booking.kind}</span></td>
+                  <td data-label="Titel"><strong>{booking.title}</strong></td>
+                  <td data-label="Hinweis">{booking.notes ?? "—"}</td>
                 </tr>
               ))}
               {(todayBookings ?? []).length === 0 ? <tr><td colSpan={5}>Heute sind keine Buchungen oder Sperrzeiten eingetragen.</td></tr> : null}
